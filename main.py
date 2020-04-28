@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
             # Kalman filter
             filtered_pts = np.zeros((4, 2))
-            for i in range(0, sorted_pt2.size):
+            for i in range(0, sorted_pt2.size - 1):
                 x_m = sorted_pt2[i][0]
                 y_m = sorted_pt2[i][1]
                 x_h, y_h, param = Kalman(x_m, y_m, Kalman_params[i])
