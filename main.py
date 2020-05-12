@@ -58,6 +58,13 @@ if __name__ == '__main__':
         # 좌표 데이터 저장용
         # data = np.array([[0, 0, 0]])
 
+        # 비디오 저장 준비
+        fps = 30
+        width = 640
+        height = 480
+        fcc = cv2.VideoWriter_fourcc('D', 'I', 'V', 'X')
+        out = cv2.VideoWriter('./resource/video/one_circle_disappeared.avi', fcc, fps, (width, height))
+
         # 캡처할 이미지 인덱싱
         img_counter = 0
 
@@ -83,6 +90,8 @@ if __name__ == '__main__':
             count += 1
             # -----------------------------------#
             color = cv2.cvtColor(frame, cv2.COLOR_BAYER_GB2BGR)  # BGR
+            # 비디오 기록
+            out.write(color)
             # 이미지 밝기 낮추기, b의 크기에 따라 변화(최대 255)
             b = 50
             M = np.ones(color.shape, dtype="uint8") * b
@@ -104,7 +113,7 @@ if __name__ == '__main__':
 
             # find circles
             color, sorted_pt2 = find_circles(binary, color)
-
+            """
             # Kalman filter
             filtered_pts = np.zeros((4, 2))
             for i in range(0, sorted_pt2.size - 1):
@@ -121,7 +130,7 @@ if __name__ == '__main__':
                    str(int(tvec[1][0])) + ', ' + \
                    str(int(tvec[2][0])) + ']'
             color = cv2.putText(color, text, (20, 20), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
-
+            """
             # test
             cv2.imshow('test', color)
             key = cv2.waitKey(1)
@@ -137,6 +146,7 @@ if __name__ == '__main__':
 
         # saving the locations
         # np.save('data', data)
+        out.release()
         end_time = time.time()
 
         print('FPS= ', count / (end_time - start_time))
