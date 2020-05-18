@@ -1,1 +1,4 @@
-__all__ = ['Kalman.py', 'Kalman_Params_class']
+__all__ = ['Kalman', 'KalmanParam']
+
+from .Kalman import *
+from .Kalman_Params_class import *

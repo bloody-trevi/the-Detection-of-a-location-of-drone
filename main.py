@@ -63,7 +63,8 @@ if __name__ == '__main__':
         width = 640
         height = 480
         fcc = cv2.VideoWriter_fourcc('D', 'I', 'V', 'X')
-        out = cv2.VideoWriter('./resource/video/one_circle_disappeared.avi', fcc, fps, (width, height))
+        name = input("Enter the name of record: ")
+        out = cv2.VideoWriter('./resource/video/' + name + '.avi', fcc, fps, (width, height))
 
         # 캡처할 이미지 인덱싱
         img_counter = 0
@@ -122,7 +123,7 @@ if __name__ == '__main__':
                 x_h, y_h, param = Kalman(x_m, y_m, Kalman_params[i])
                 Kalman_params[i] = param
                 filtered_pts[i, :] = np.array([x_h, y_h])
-
+            
             # print the location
             retP, rvec, tvec = cv2.solvePnP(object_points, filtered_pts, cameraMtx, distCoff)
             text = 'Location: [' + \
