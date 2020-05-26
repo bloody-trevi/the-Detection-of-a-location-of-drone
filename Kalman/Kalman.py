@@ -8,7 +8,8 @@ def Kalman(xm, ym, param):
 
     :param xm: 영상 처리로 얻은 위치의 x 좌표
     :param ym: 영상 처리로 얻은 위치의 y 좌표
-    :return: 추정 위치 (x, y)
+    :param param: 칼만 필터 계산에 필요한 행렬들
+    :return: 추정 위치 (x, y), 추정 속도(vx, vy), 갱신된 param
     """
 
     # 시스템 모델 행렬
@@ -33,6 +34,8 @@ def Kalman(xm, ym, param):
 
     # [위치 x, 속도 x, 위치 y, 속도 y]
     xh = x[0]   # 위치 x
+    vx = x[1]   # 속도 x
     yh = x[2]   # 위치 y
+    vy = x[3]   # 속도 y
     param.set_x_P(x, P)
-    return xh, yh, param
+    return xh, yh, vx, vy, param

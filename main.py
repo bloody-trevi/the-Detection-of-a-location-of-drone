@@ -5,6 +5,7 @@ from Kalman.Kalman_Params_class import *
 import cv2
 import time
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def cam_params():
@@ -59,13 +60,14 @@ if __name__ == '__main__':
         # data = np.array([[0, 0, 0]])
 
         # 비디오 저장 준비
+        """
         fps = 30
         width = 640
         height = 480
         fcc = cv2.VideoWriter_fourcc('D', 'I', 'V', 'X')
         name = input("Enter the name of record: ")
         out = cv2.VideoWriter('./resource/video/' + name + '.avi', fcc, fps, (width, height))
-
+        """
         # 캡처할 이미지 인덱싱
         img_counter = 0
 
@@ -76,9 +78,12 @@ if __name__ == '__main__':
         Q = np.eye(4, k=0, dtype=float)
         R = np.array([[50, 0], [0, 50]])
         x = np.transpose(np.array([0, 0, 0, 0]))
-        P = 100 * np.eye(4, k=0, dtype=int)
+        P = 100 * np.eye(4, k=0, dtype=float)
         param = KalmanParam(A, H, Q, R, x, P)
         Kalman_params = [param, param, param, param]
+
+        # 속도 추정
+        list_pts_vel = []
 
         while True:
             try:
@@ -92,7 +97,7 @@ if __name__ == '__main__':
             # -----------------------------------#
             color = cv2.cvtColor(frame, cv2.COLOR_BAYER_GB2BGR)  # BGR
             # 비디오 기록
-            out.write(color)
+            #out.write(color)
             # 이미지 밝기 낮추기, b의 크기에 따라 변화(최대 255)
             b = 50
             M = np.ones(color.shape, dtype="uint8") * b
@@ -114,16 +119,22 @@ if __name__ == '__main__':
 
             # find circles
             color, sorted_pt2 = find_circles(binary, color)
-            """
+
             # Kalman filter
             filtered_pts = np.zeros((4, 2))
-            for i in range(0, sorted_pt2.size - 1):
+            pts_velocity = []
+            for i in range(0, len(sorted_pt2)):
                 x_m = sorted_pt2[i][0]
                 y_m = sorted_pt2[i][1]
-                x_h, y_h, param = Kalman(x_m, y_m, Kalman_params[i])
+                x_h, y_h, vx, vy, param = Kalman(x_m, y_m, Kalman_params[i])
                 Kalman_params[i] = param
+                print(param.get_x())
                 filtered_pts[i, :] = np.array([x_h, y_h])
-            
+                pts_velocity.append(vx)
+                pts_velocity.append(vy)
+            list_pts_vel.append(pts_velocity)
+
+            """
             # print the location
             retP, rvec, tvec = cv2.solvePnP(object_points, filtered_pts, cameraMtx, distCoff)
             text = 'Location: [' + \
@@ -144,10 +155,32 @@ if __name__ == '__main__':
                 cv2.imwrite(img_name, color)
                 print("{} written!".format(img_name))
                 img_counter += 1
+        
+        # 네 점의 x, y 속도
 
+        array_velocity = np.array(list_pts_vel)
+        print(array_velocity)
+        time = np.arange(len(list_pts_vel))
+        plt.subplot(4, 2, 1)
+        plt.plot(time, array_velocity[:, 0])
+        plt.subplot(4, 2, 2)
+        plt.plot(time, array_velocity[:, 1])
+        plt.subplot(4, 2, 3)
+        plt.plot(time, array_velocity[:, 2])
+        plt.subplot(4, 2, 4)
+        plt.plot(time, array_velocity[:, 3])
+        plt.subplot(4, 2, 5)
+        plt.plot(time, array_velocity[:, 4])
+        plt.subplot(4, 2, 6)
+        plt.plot(time, array_velocity[:, 5])
+        plt.subplot(4, 2, 7)
+        plt.plot(time, array_velocity[:, 6])
+        plt.subplot(4, 2, 8)
+        plt.plot(time, array_velocity[:, 7])
+        plt.show()
         # saving the locations
         # np.save('data', data)
-        out.release()
+        #out.release()
         end_time = time.time()
 
         print('FPS= ', count / (end_time - start_time))
